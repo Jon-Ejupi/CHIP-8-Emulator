@@ -75,6 +75,7 @@ class Chip8 {
     this.pixelSize = 10;
   }
   
+c
     
   
   loadProgram(program) {
