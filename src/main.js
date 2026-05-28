@@ -268,7 +268,7 @@ c
                this.i = (this.i + x + 1) & 0xFFFF;
                 break;
               }
-        
+              break;
       default:
         console.warn(`Unknown opcode: 0x${opcode.toString(16).toUpperCase()}`);
 
@@ -303,7 +303,8 @@ const chip8 = new Chip8(canvas);
 const getX = (offset, position) => offset + position * 5;
 
    const program = [
-    0x12, 0x00
+    0x12, 0x00, 0xA0, 0xF1, 0xF0A, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x0E0, 0xEE, 0xB0, 
+
    ]
       chip8.loadProgram(program);
 
