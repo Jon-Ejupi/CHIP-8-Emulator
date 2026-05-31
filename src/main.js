@@ -63,6 +63,29 @@ class Chip8 {
 
     ];
 
+    this.keyMap = {
+      '1': 0x1, '2': 0x2, '3': 0x3, '4': 0xC,
+      'q': 0x4, 'w': 0x5, 'e': 0x6, 'r': 0xD,
+      'a': 0x7, 's': 0x8, 'd': 0x9, 'f': 0xE,
+      'z': 0xA, 'x': 0x0, 'c': 0xB, 'v': 0xF
+    };
+
+    window.addEventListener('keydown', (event) => {
+      const hexkeys = this.keyMap[event.key.toLowerCase()];
+      if (hexkeys !== undefined) {
+        this.keys[hexkeys] = 1;
+     
+      }
+    });
+
+    window.addEventListener('keyup', (event) => {
+      const hexkeys = this.keyMap[event.key.toLowerCase()];
+          if (hexkeys !== undefined) {
+            this.keys[hexkeys] = 0;
+          }
+    });
+
+
     for(let i = 0; i < this.fontset.length; i++) {
       this.memory[0x050 + i] = this.fontset[i];
     }
@@ -75,7 +98,7 @@ class Chip8 {
     this.pixelSize = 10;
   }
   
-c
+
     
   
   loadProgram(program) {
@@ -90,9 +113,6 @@ c
 
      this.executeInstruction(opcode);
 
-     if (this.delayTimer > 0) this.delayTimer--;
-     if (this.soundTimer > 0) this.soundTimer--; 
-  
   }
   executeInstruction(opcode) {
     console.log(`Execute opcode0x${opcode.toString(16).toUpperCase()}`);
@@ -220,17 +240,17 @@ c
                 case 0x0A: {
                   let keyPressed = false;
                   for (let i = 0; i < 16; i++) {
-                    if (this.keys[i] === true) {
+                    if (this.keys[i]) { 
                       this.v[x] = i;
                       keyPressed = true;
                       break;
                     }
                   }
                   if (!keyPressed) {
-                    this.pc -= 2;
+                    this.pc -= 2; 
                   }
                   break;
-                }
+              }
               case 0x15:
                 this.delayTimer = this.v[x];
                 break;
@@ -242,7 +262,7 @@ c
                 break;
               case 0x29:
                 let characters = this.v[x] & 0x0F;
-                this.i = characters * 5;
+                this.i = 0x050 + (characters * 5);
                 break;
               case 0x33:
                 let value = this.v[x];
@@ -303,7 +323,10 @@ const chip8 = new Chip8(canvas);
 const getX = (offset, position) => offset + position * 5;
 
    const program = [
-    0x12, 0x00, 0xA0, 0xF1, 0xF0A, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x0E0, 0xEE, 0xB0, 
+   0x12, 0x04, // 1204 -> JP 0x204 (Skip data padding to hit instruction 0x600A)
+    0x00, 0x00, // Data / Padding
+    0x60, 0x0A, // 600A -> Set V0 = 10
+    0x00, 0xE0  // 00E0 -> Clear Screen
 
    ]
       chip8.loadProgram(program);
@@ -320,5 +343,9 @@ const getX = (offset, position) => offset + position * 5;
           // console.log(chip8.pc);
           console.log('PC = 0x' + chip8.pc.toString(16).toUpperCase());
       }
-
+      setInterval(() => {
+        if (chip8.delayTimer > 0) chip8.delayTimer--;
+        if (chip8.soundTimer > 0) chip8.soundTimer--;
+      }, 1000 / 60);
+      chip8.speed = 10;
       run();
